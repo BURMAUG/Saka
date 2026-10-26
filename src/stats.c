@@ -1,7 +1,11 @@
 #include "stats.h"
-#include <dirent.h>
 
-int frequency(map *map)
+#include <stddef.h>
+
+int
+frequency(map *entry)
 {
-	return ++map->stats.frequency;
+    if (entry == NULL)
+        return -1;
+    return (int)(++entry->stats.frequency);
 }

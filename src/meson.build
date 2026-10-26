@@ -1,6 +1,7 @@
 setup_lib = static_library(
   'setup',
   'setup.c',
+  'store.c',
 )
 
 stats_lib = static_library(
