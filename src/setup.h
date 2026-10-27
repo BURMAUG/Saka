@@ -14,6 +14,7 @@ typedef struct {
     unsigned long frequency;
     unsigned long duration;
     unsigned int is_active;
+    unsigned long started_at; /* Unix seconds when directory became active */
 } store_record_t;
 
 /* Pure helpers (easy to unit test, no file I/O). */
@@ -22,6 +23,13 @@ int parse_storage_buffer(const char *buf, size_t len,
                         size_t *out_count);
 int lookup_record(const store_record_t *records, size_t count,
                   const char *target_path);
+void finalize_record(store_record_t *record, unsigned long now);
+
+/* Finalize all active directories and persist. Used by `ting stop`. */
+int stop_tracking(void);
+
+/* Print tracked directories with frequency/duration. Used by `ting ls`. */
+int list_tracked(void);
 
 /* File-backed entry points. */
 int setup_target_path(const char *target_path, int is_active);
