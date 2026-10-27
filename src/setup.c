@@ -1,6 +1,14 @@
 #include "setup.h"
 #include "store.h"
+#if __has_include("color.h")
 #include "color.h"
+#else
+static inline const char *color_reset(void) { return ""; }
+static inline const char *color_green(void) { return ""; }
+static inline const char *color_red(void) { return ""; }
+static inline const char *color_cyan(void) { return ""; }
+static inline const char *color_yellow(void) { return ""; }
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
