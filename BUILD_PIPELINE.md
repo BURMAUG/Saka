@@ -50,6 +50,18 @@ branches, plus PRs to `master`/`main`:
 4. `meson test -C build --print-errorlogs`
 
 ### Data format
-`STORE_FILE` lines use CSV: `path,frequency,duration,is_active`.
-Parsing reads the trailing three numeric fields from the right so paths may
-contain commas. CRLF line endings are accepted.
+`STORE_FILE` lines use CSV: `path,frequency,duration,is_active,started_at`.
+`started_at` is a Unix timestamp recorded when the directory becomes active.
+Parsing reads trailing numeric fields from the right (4 for the new format,
+3 for the legacy format) so paths may contain commas. CRLF line endings are
+accepted.
+
+### Duration tracking
+- `ting cd <path>` finalizes the previously active directory's duration and
+  activates the new one.
+- `ting stop` (alias `ting flush`) finalizes all active durations; use it in
+  a shell `EXIT` trap so the last directory is recorded.
+
+### Color output
+- ANSI colors are used when stdout is a TTY and `NO_COLOR` is unset.
+- Success: green, errors: red, paths: cyan.

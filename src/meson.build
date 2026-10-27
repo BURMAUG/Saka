@@ -2,6 +2,7 @@ setup_lib = static_library(
   'setup',
   'setup.c',
   'store.c',
+  'color.c',
 )
 
 stats_lib = static_library(
