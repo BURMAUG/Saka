@@ -79,7 +79,7 @@ extract_data(const char* buffer)
 	// read_line
 
 	//const char *read_buff = buffer; // use read_buff to loop over csv or | to get the data
-	char line[23];
+	char line[BUFF_SIZE];
 	// process data 
 	size_t len = strcspn(buffer, "\n");
 	memcpy(line, buffer,len);
