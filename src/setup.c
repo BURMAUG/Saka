@@ -11,12 +11,13 @@
 struct map m[2048];
 union stats s;
 
-int setup_target_path(const char *target_path, int is_active)
+int setup_target_path(const char *target_path,char *store, int is_active)
 {
 	// is active is set to true on cd 
 	// increment freq by one 
-	int fd = open(STORE_FILE, O_RDONLY, 0644); // read only for the first lookup
-	fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", STORE_FILE, fd);
+	
+	int fd = open(store, O_RDONLY, 0644); // read only for the first lookup
+	fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", store, fd);
 	if (fd < 0) 
 	{
 		fprintf(stderr, "unable to created/open with fd: %i\n", fd);
@@ -76,14 +77,11 @@ int look_up_storage_for_active_path(const int fd, const char *target_path)
 int 
 extract_data(const char* buffer)
 {
-	// read_line
 
-	//const char *read_buff = buffer; // use read_buff to loop over csv or | to get the data
-	char line[BUFF_SIZE];
-	// process data 
 	size_t len = strcspn(buffer, "\n");
+	// read_line
+	char line[len];
 	memcpy(line, buffer,len);
-	line[len] = '\0';
 	fprintf(stdout, "line: %s \tlen: %i\n", line, (int)len);
 	const char* l = buffer;
 	len = len+1;
