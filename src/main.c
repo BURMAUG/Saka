@@ -31,11 +31,11 @@ main(int argc, char **argv)
 		int fd = setup_target_path(argv[2], new_store, 1);
 		if (fd < 0)
 	       	{
-			fprintf(stderr, "unsuccessfully opened and started log files argc %i\n", argc);
+			LOG_ERROR("unsuccessfully opened and started log files argc %i\n", argc);
 			return fd;
 		}
 		free(new_store);
-		fprintf(stdout, "successfully opened and started log files\n");
+		LOG_INFO( "successfully opened and started log files\n");
 	}
 
     return 0;
