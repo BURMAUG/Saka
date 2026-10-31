@@ -75,7 +75,7 @@ int setup_target_path(const char *target_path,char *rumbu, int is_active)
         // prepare here
         //m.path = target_path;
  
-        fprintf(stdout, "path: %s\n", target_path);
+        LOG_INFO("path: %s\n", target_path);
         
         // TODO implement the following function 
         // increase freq by 1
