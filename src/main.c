@@ -38,5 +38,5 @@ main(int argc, char **argv)
 		fprintf(stdout, "successfully opened and started log files\n");
 	}
 
-	return 0;
+    return 0;
 }

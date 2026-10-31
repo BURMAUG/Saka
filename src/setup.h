@@ -10,20 +10,4 @@
 // TODO: implement cwd observation.
 int setup_target_path(const char *target_path,char *store,  int is_active);
 
-
-int extract_data(const char* buffer);
-
-char* read_line();
-// after reading the line split the comma seperated values or "|" seperated values
-int get_path(const int fd);
-int get_duration(const int fd);
-int get_frequency(const int fd);//count
-int is_active(const int fd);
-// after reading the line split the comma seperated values or "|" seperated values
-
-int load_data(const int fd);
-
-
-int look_up_storage_for_active_path(const int fd, const char *target_path);
-
-#endif
+#endif /* TINGONE_SETUP_H */
