@@ -1,5 +1,5 @@
 #include "setup.h"
-#include "store.h"
+#include "log.h"
 #if __has_include("color.h")
 #include "color.h"
 #else
@@ -56,10 +56,10 @@ int setup_target_path(const char *target_path,char *rumbu, int is_active)
         // increment freq by one 
         //mkdir(store, O_CREAT);
         int fd = open(rumbu, O_RDONLY | O_CREAT, 0644); // read only for the first lookup
-        fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
+        LOG_INFO("STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
         if (fd < 0) 
         {
-                fprintf(stderr, "unable to created/open with fd: %i\n", fd);
+                LOG_ERROR("unable to created/open with fd: %i\n", fd);
                 return  1;
         }
         //
