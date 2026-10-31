@@ -36,136 +36,39 @@ ensure_parent_dir(const char *file_path)
         return -1;
     memcpy(tmp, file_path, n + 1);
 
-    /* Strip the file name to get the directory. */
-    char *slash = strrchr(tmp, '/');
-    if (slash == NULL)
-        return 0;
-    *slash = '\0';
-    if (tmp[0] == '\0')
-        return 0;
-
-    /* mkdir -p (only one level is needed for our default path, but be safe). */
-    char acc[MAX_PATH_LEN];
-    acc[0] = '\0';
-    char *tok = strtok(tmp, "/");
-    int first = 1;
-    while (tok != NULL) {
-        if (first) {
-            /* Absolute path keeps leading '/'. */
-            if (file_path[0] == '/')
-                snprintf(acc, sizeof(acc), "/%s", tok);
-            else
-                snprintf(acc, sizeof(acc), "%s", tok);
-            first = 0;
-        } else {
-            size_t cur = strlen(acc);
-            snprintf(acc + cur, sizeof(acc) - cur, "/%s", tok);
-        }
-        if (mkdir(acc, 0755) != 0 && errno != EEXIST)
-            return -1;
-        tok = strtok(NULL, "/");
-    }
-    return 0;
-}
-
-int
-parse_storage_buffer(const char *buf, size_t len,
-                    store_record_t *records, size_t max_records,
-                    size_t *out_count)
+int setup_target_path(const char *target_path,char *rumbu, int is_active)
 {
-    if (buf == NULL || records == NULL || out_count == NULL)
-        return -1;
+	// make dir for saka store
+	// is active is set to true on cd 
+	// increment freq by one 
+	//mkdir(store, O_CREAT);
+	int fd = open(rumbu, O_RDONLY | O_CREAT, 0644); // read only for the first lookup
+	fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
+	if (fd < 0) 
+	{
+		fprintf(stderr, "unable to created/open with fd: %i\n", fd);
+		return -1;
+	}
+	//
+	//int read =
+	look_up_storage_for_active_path(fd, target_path);
+	close(fd);
 
-    size_t count = 0;
-    size_t i = 0;
-    while (i < len && count < max_records) {
-        if (buf[i] == '\n') {
-            i++;
-            continue;
-        }
-        size_t start = i;
-        while (i < len && buf[i] != '\n')
-            i++;
-        size_t line_len = i - start;
-        if (i < len)
-            i++; /* consume '\n' */
+	// TODO 
+	// only do this if the target_path is not in the log file 
+	// or target_path is not active to increase frequency, and duration and is_active
+	//fd = open(STORE_FILE, O_WRONLY, 0644); 
 
-        if (line_len == 0)
-            continue;
+	// prepare here
+	//m.path = target_path;
 
-        char line[MAX_PATH_LEN];
-        size_t copy = line_len < sizeof(line) - 1 ? line_len : sizeof(line) - 1;
-        memcpy(line, buf + start, copy);
-        line[copy] = '\0';
+	fprintf(stdout, "path: %s\n", target_path);
+	
+	// TODO implement the following function 
+	// increase freq by 1
+	// frequency(&m);
 
-        /* Strip trailing '\r' (CRLF). */
-        size_t ll = strlen(line);
-        if (ll > 0 && line[ll - 1] == '\r')
-            line[ll - 1] = '\0';
-
-        /* Parse trailing numeric fields from the right so paths may contain
-         * commas. Supports 4 fields (legacy) or 5 fields (with started_at). */
-        size_t seps[4];
-        int nsep = 0;
-        for (char *q = line + strlen(line) - 1; q >= line && nsep < 4; q--) {
-            if (*q == ',') {
-                seps[nsep++] = (size_t)(q - line);
-            }
-        }
-
-        unsigned long frequency = 0;
-        unsigned long duration = 0;
-        unsigned int is_active = 0;
-        unsigned long started_at = 0;
-
-        int use_new = 0;
-        if (nsep >= 4) {
-            char *freq_field = line + seps[3] + 1;
-            char *endptr = NULL;
-            errno = 0;
-            strtoul(freq_field, &endptr, 10);
-            if (endptr == line + seps[2] && endptr != freq_field && errno == 0)
-                use_new = 1;
-        }
-
-        if (use_new) {
-            /* New format: path,freq,duration,is_active,started_at */
-            char *s0 = line + seps[0];
-            char *s1 = line + seps[1];
-            char *s2 = line + seps[2];
-            char *s3 = line + seps[3];
-            *s0 = '\0'; *s1 = '\0'; *s2 = '\0'; *s3 = '\0';
-            started_at = strtoul(s0 + 1, NULL, 10);
-            is_active = (unsigned int)strtoul(s1 + 1, NULL, 10);
-            duration = strtoul(s2 + 1, NULL, 10);
-            frequency = strtoul(s3 + 1, NULL, 10);
-        } else if (nsep >= 3) {
-            /* Legacy format: path,freq,duration,is_active */
-            char *s0 = line + seps[0];
-            char *s1 = line + seps[1];
-            char *s2 = line + seps[2];
-            *s0 = '\0'; *s1 = '\0'; *s2 = '\0';
-            is_active = (unsigned int)strtoul(s0 + 1, NULL, 10);
-            duration = strtoul(s1 + 1, NULL, 10);
-            frequency = strtoul(s2 + 1, NULL, 10);
-        } else {
-            continue;
-        }
-
-        const char *path = line;
-        if (path[0] == '\0')
-            continue;
-
-        snprintf(records[count].path, MAX_PATH_LEN, "%s", path);
-        records[count].frequency = frequency;
-        records[count].duration = duration;
-        records[count].is_active = is_active;
-        records[count].started_at = started_at;
-        count++;
-    }
-
-    *out_count = count;
-    return 0;
+	return fd;
 }
 
 int
@@ -196,64 +99,27 @@ finalize_record(store_record_t *record, unsigned long now)
 int
 stop_tracking(void)
 {
-    const char *file = store_file_path();
-    int fd = open(file, O_RDONLY);
-    if (fd < 0) {
-        if (errno == ENOENT)
-            return 0;
-        return -1;
-    }
 
-    char buffer[BUFF_SIZE];
-    memset(buffer, 0, sizeof(buffer));
-    size_t total = 0;
-    while (total + 1 < BUFF_SIZE) {
-        ssize_t r = read(fd, buffer + total, BUFF_SIZE - total - 1);
-        if (r < 0) {
-            close(fd);
-            return -1;
-        }
-        if (r == 0)
-            break;
-        total += (size_t)r;
-    }
-    buffer[total] = '\0';
-    close(fd);
+	size_t len = strcspn(buffer, "\n");
+	// read_line
+	char line[len];
+	memcpy(line, buffer,len);
+	fprintf(stdout, "line: %s \tlen: %i\n", line, (int)len);
+	const char* l = buffer;
+	len = len+1;
+	l += len;
 
-    static store_record_t records[MAX_RECORDS];
-    size_t count = 0;
-    memset(records, 0, sizeof(records));
-    if (parse_storage_buffer(buffer, total, records, MAX_RECORDS, &count) != 0)
-        return -1;
+	while (*l != '\0')
+	{
+		len = strcspn(l, "\n");
+		memcpy(line, buffer,len);
+		line[len] = '\0';
+		fprintf(stdout, "line: %s \tlen: %i\n", line, (int)len);
+		len = len+1;
+		l += len;
+	}
 
-    unsigned long now = (unsigned long)time(NULL);
-    int changed = 0;
-    for (size_t i = 0; i < count; i++) {
-        if (records[i].is_active) {
-            finalize_record(&records[i], now);
-            changed = 1;
-        }
-    }
-
-    if (!changed)
-        return 0;
-
-    fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0)
-        return -1;
-    for (size_t i = 0; i < count; i++) {
-        char line[MAX_PATH_LEN + 64];
-        snprintf(line, sizeof(line), "%s,%lu,%lu,%u,%lu\n",
-                 records[i].path, records[i].frequency,
-                 records[i].duration, records[i].is_active,
-                 records[i].started_at);
-        if (write_string_fd(fd, line) != 0) {
-            close(fd);
-            return -1;
-        }
-    }
-    close(fd);
-    return 0;
+	return 0;
 }
 
 static int

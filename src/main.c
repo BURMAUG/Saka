@@ -1,56 +1,42 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "setup.h"
-#if __has_include("color.h")
-#include "color.h"
-#else
-static inline const char *color_reset(void) { return ""; }
-static inline const char *color_green(void) { return ""; }
-static inline const char *color_red(void) { return ""; }
-static inline const char *color_cyan(void) { return ""; }
-static inline const char *color_yellow(void) { return ""; }
-#endif
+#include "log.h"
 
-int
+
+int 
 main(int argc, char **argv)
 {
-    if (argc > 2 && strcmp(argv[1], "cd") == 0) {
-        int rc = setup_target_path(argv[2], 1);
-        if (rc != 0) {
-            fprintf(stderr, "%serror:%s unsuccessfully opened/started log files (argc %i)\n",
-                    color_red(), color_reset(), argc);
-            return rc;
-        }
-        fprintf(stdout, "%ssuccessfully opened and started log files%s\n",
-                color_green(), color_reset());
-        fprintf(stdout, "path: %s%s%s\n", color_cyan(), argv[2], color_reset());
-        return 0;
-    }
+	if (argc > 2 && strcmp(argv[1], "cd") == 0)
+	{
+		// call stats to take the path 
+		// argv[2]
+		// i need to know when to stop the watch 
+		// if another cd is made I need to stop any current timer 
+		// because it means I am out of the current target_path
+		const char *home = getenv("HOME");
+		int t_len = strlen(STORE_FILE);
+		int len = strlen(home);
 
-    if (argc > 1 && (strcmp(argv[1], "ls") == 0 ||
-                      strcmp(argv[1], "list") == 0 ||
-                      strcmp(argv[1], "ds") == 0)) {
-        int rc = list_tracked();
-        if (rc != 0) {
-            fprintf(stderr, "%serror:%s failed to list tracked directories\n",
-                    color_red(), color_reset());
-            return rc;
-        }
-        return 0;
-    }
+		char *new_store = malloc(len+t_len+1);
+		// I need concate home and path
+		// stitch path
+		memcpy(new_store, home,len);
+		memcpy(new_store+len, STORE_FILE,t_len);
+		new_store[len + t_len] = '\0';
 
-    if (argc > 1 && (strcmp(argv[1], "stop") == 0 ||
-                      strcmp(argv[1], "flush") == 0)) {
-        int rc = stop_tracking();
-        if (rc != 0) {
-            fprintf(stderr, "%serror:%s failed to finalize tracked durations\n",
-                    color_red(), color_reset());
-            return rc;
-        }
-        fprintf(stdout, "%sfinalized tracked durations%s\n",
-                color_green(), color_reset());
-        return 0;
-    }
+		LOG_INFO("new_path: %s\n", new_store);
+
+		int fd = setup_target_path(argv[2], new_store, 1);
+		if (fd < 0)
+	       	{
+			fprintf(stderr, "unsuccessfully opened and started log files argc %i\n", argc);
+			return fd;
+		}
+		free(new_store);
+		fprintf(stdout, "successfully opened and started log files\n");
+	}
 
     return 0;
 }
