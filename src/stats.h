@@ -16,13 +16,10 @@
 // this will be like a look up table
 typedef struct map {
 	const char *path;
-
-	union stats {
-		unsigned int is_active;
-		unsigned long duration; // this should be in time unit how much time I dwell 
-		unsigned long frequency; // count of how many times I go to work in a given dir
+	unsigned int is_active;
+	unsigned long duration; // this should be in time unit how much time I dwell 
+	unsigned long frequency; // count of how many times I go to work in a given dir
 					 //
-       	} stats;
 } map; 
 
 // increment the visit count for dir and return the new value.

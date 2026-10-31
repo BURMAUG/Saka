@@ -7,5 +7,5 @@ frequency(map *entry)
 {
     if (entry == NULL)
         return -1;
-    return (int)(++entry->stats.frequency);
+    return (int)(++entry->frequency);
 }
