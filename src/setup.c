@@ -11,13 +11,14 @@
 struct map m[2048];
 union stats s;
 
-int setup_target_path(const char *target_path,char *store, int is_active)
+int setup_target_path(const char *target_path,char *rumbu, int is_active)
 {
+	// make dir for saka store
 	// is active is set to true on cd 
 	// increment freq by one 
-	
-	int fd = open(store, O_RDONLY, 0644); // read only for the first lookup
-	fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", store, fd);
+	//mkdir(store, O_CREAT);
+	int fd = creat(rumbu, 0644); // read only for the first lookup
+	fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
 	if (fd < 0) 
 	{
 		fprintf(stderr, "unable to created/open with fd: %i\n", fd);
@@ -96,19 +97,6 @@ extract_data(const char* buffer)
 		len = len+1;
 		l += len;
 	}
-
-	//while (*read_buff != '\0')
-	//{
-		// read line
-	//	line = read_buff;
-	//	while(*line != '\n')
-	//	{
-	//		fprintf(stdout, "line: %s\n", line);
-	//		line += 1;
-	//	}
-	//	line += 1;
-	//	read_buff = line;
-	//}
 
 	return 0;
 }
