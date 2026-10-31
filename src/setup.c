@@ -17,7 +17,7 @@ int setup_target_path(const char *target_path,char *rumbu, int is_active)
 	// is active is set to true on cd 
 	// increment freq by one 
 	//mkdir(store, O_CREAT);
-	int fd = creat(rumbu, 0644); // read only for the first lookup
+	int fd = open(rumbu, O_RDONLY | O_CREAT, 0644); // read only for the first lookup
 	fprintf(stdout, "STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
 	if (fd < 0) 
 	{

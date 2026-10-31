@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "setup.h"
+#include "log.h"
 
 
 int 
@@ -23,8 +24,9 @@ main(int argc, char **argv)
 		// stitch path
 		memcpy(new_store, home,len);
 		memcpy(new_store+len, STORE_FILE,t_len);
+		new_store[len + t_len] = '\0';
 
-		fprintf(stderr, "new_path: %s\n", new_store);
+		LOG_INFO("new_path: %s\n", new_store);
 
 		int fd = setup_target_path(argv[2], new_store, 1);
 		if (fd < 0)

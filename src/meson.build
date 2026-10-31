@@ -1,6 +1,6 @@
 setup_lib = static_library(
   'setup',
-  'setup.c',
+  ['setup.c', 'log.c'],
 )
 
 stats_lib = static_library(
