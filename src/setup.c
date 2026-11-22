@@ -21,7 +21,7 @@ static inline const char *color_yellow(void) { return ""; }
 
 
 int look_up_storage_for_active_path(int fd, const char *target_path);
-void arrange(); // this I am yet to know how to work this yet
+void arrange();
 
 
 int 
@@ -73,8 +73,10 @@ look_up_storage_for_active_path(int fd, const char *target_path)
         return -1;
     }
 
-    char buffer[BUFF_SIZE];
     read_fd_to_string(fd, buffer, BUFF_SIZE);
+    // even after read_fd_to_string is complete and popped off the program stack 
+    // buffer is still populated with the values read;    
+    LOG_INFO("in_buffer_values: %s", buffer);
 
     //
     // find target_path in the current buffer and split into tokens
@@ -88,5 +90,3 @@ arrange()
 {
 
 }
-
-
