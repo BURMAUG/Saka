@@ -1,0 +1,35 @@
+{
+  "configurations": {
+    "ting (gdb)": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "/home/burmo/.develop/projects/c/tingone/build/src/ting",
+	"args": ["cd", "/home/burmo/.develop/projects/c/tingone"],
+        "cwd": "/home/burmo/.develop/projects/c/tingone",
+        "environment": [
+          { "name": "TING_STORE_FILE", "value": "/tmp/opencode/ting.log" }
+        ],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb",
+        "setupCommands": [
+          { "description": "Enable pretty printing", "text": "-enable-pretty-printing", "ignoreFailures": true }
+        ]
+      }
+    },
+    "test_setup (gdb)": {
+      "adapter": "vscode-cpptools",
+      "configuration": {
+        "request": "launch",
+        "program": "/home/burmo/.develop/projects/c/tingone/build/tests/test_setup",
+        "args": [],
+        "cwd": "/home/burmo/.develop/projects/c/tingone",
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb"
+      }
+    }
+  }
+}

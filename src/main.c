@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "setup.h"
@@ -27,7 +27,9 @@ main(int argc, char **argv)
 		new_store[len + t_len] = '\0';
 
 		LOG_INFO("new_path: %s\n", new_store);
+		LOG_INFO("cd_target_path: %s\n", argv[2]);
 
+		// argv[2] is the need path you cd into  
 		int fd = setup_target_path(argv[2], new_store, 1);
 		if (fd < 0)
 	       	{

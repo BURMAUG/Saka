@@ -11,6 +11,26 @@ Something like a heat-map. the calc should be based on time and count.
 - C
 - Meson
 
+### Debugging from Vim
+
+The default `build/` is configured with `buildtype=debug` (`-O0 -g`), and
+`build/compile_commands.json` is generated for clangd/LSP.
+
+From Vim (9.1+ with terminal support):
+
+```vim
+:packadd termdebug
+:Termdebug build/src/ting
+```
+
+Or launch everything at once:
+
+```sh
+vim -S debug.vim
+```
+
+GDB reads `.gdbinit` in the project root, which points at `build/src/ting`.
+
 ### Dependencies  (may have to be a diff app)
 - CLI tool that will list all the freqently dwelled on directories. ls -d
 - CLI tool that will list all the freqently dwelled on directories, and major statistics. ls -ds
