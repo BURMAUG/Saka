@@ -79,7 +79,7 @@ look_up_storage_for_active_path(int fd, const char *target_path)
     // buffer is still populated with the values read;    
     LOG_INFO("in_buffer_values: %s", log_buffer);
 
-    //
+
     // find target_path in the current buffer and split into tokens
     // update the target to active 
     // start the intial time 
