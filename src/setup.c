@@ -1,5 +1,6 @@
 #include "setup.h"
 #include "store.h"
+#include "string.h"
 #include "log.h"
 #include <stddef.h>
 #if __has_include("color.h")
@@ -22,7 +23,7 @@ static inline const char *color_yellow(void) { return ""; }
 char log_buffer[BUFF_SIZE];
 
 int look_up_storage_for_active_path(int fd, const char *target_path);
-void arrange();
+void prepare();
 
 
 int 
@@ -52,7 +53,7 @@ setup_target_path(const char *target_path,char *rumbu, int is_active)
         // prepare here
         //m.path = target_path;
  
-        LOG_INFO("path: %s\n", target_path);
+        LOG_DEBUG("path: %s\n", target_path);
         
         // TODO implement the following function 
         // increase freq by 1
@@ -77,7 +78,8 @@ look_up_storage_for_active_path(int fd, const char *target_path)
     read_fd_to_string(fd, log_buffer, BUFF_SIZE);
     // even after read_fd_to_string is complete and popped off the program stack 
     // buffer is still populated with the values read;    
-    LOG_INFO("in_buffer_values: %s", log_buffer);
+    LOG_DEBUG("in_buffer_values: %s", log_buffer);
+    prepare();
 
 
     // find target_path in the current buffer and split into tokens
@@ -87,7 +89,25 @@ look_up_storage_for_active_path(int fd, const char *target_path)
 }
 
 void 
-arrange()
+prepare()
 {
+	char* save = NULL;
+	char* dup = strdup(log_buffer);
+	char* line = strtok_r(dup,  "\n", &save);
+	while (line != NULL) 
+	{
+		LOG_INFO(line);
+		strtok_r( NULL, "\n", &save);
+		//Now decontruct the line into tokens of the following values 
+		/*
+			const char *path;
+			int is_active;
+			long start_t; // this should be in time unit how much time I dwell 
+			long end_t; // this should be in time unit how much time I dwell 
+			long duration; // this should be in time unit how much time I dwell 
+			long frequency; // count of how many times I go to work in a given dir
+		 */
+		line = strtok_r(NULL,  "\n", &save);
+	}
 
 }

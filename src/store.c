@@ -8,7 +8,7 @@ void
 read_fd_to_string(int fd, char *buf, size_t cap)
 {
     size_t r_fd = read(fd, buf, cap-1);
-    LOG_INFO("lookup_vals: %s\nwhat is r_fd: %d\nwhat is fd: %d", buf, r_fd, fd);
+    LOG_DEBUG("lookup_vals: %s\nwhat is r_fd: %d\nwhat is fd: %d", buf, r_fd, fd);
     fflush(stdout);
     close(r_fd);
 }
