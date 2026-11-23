@@ -1,6 +1,7 @@
 //#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "setup.h"
 #include "log.h"
 
@@ -38,6 +39,7 @@ main(int argc, char **argv)
 		}
 		free(new_store);
 		LOG_INFO( "successfully opened and started log files\n");
+		close(fd);
 	}
 
     return 0;
