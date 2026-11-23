@@ -1,9 +1,11 @@
 #ifndef TINGONE_SETUP_H
 #define TINGONE_SETUP_H
 
-#define STORE_FILE "/home/burmo/.local/share/ting/log"
+#define STORE_FILE "/.local/share/ting/log"
 #define BUFF_SIZE 2048
 
+
+extern char log_buffer[BUFF_SIZE];
 
 
 // listen for cds attach an Id to the path and start a time.
@@ -26,4 +28,4 @@ int load_data(const int fd);
 
 int look_up_storage_for_active_path(const int fd, const char *target_path);
 
-#endif
+#endif /* TINGONE_SETUP_H */

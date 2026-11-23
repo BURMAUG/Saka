@@ -9,3 +9,4 @@ frequency(map *entry)
         return -1;
     return (int)(++entry->frequency);
 }
+
