@@ -2,6 +2,8 @@
 #include "store.h"
 
 #include <stdio.h>
+#include <string.h>
+#include <log.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -260,4 +262,28 @@ setup_target_path(const char *target_path, int is_active)
 
     fprintf(stdout, "path: %s\n", target_path);
     return 0;
+}
+
+//TODO is implementation is incorrect and shoul NOT be
+//trusted 
+char* read_line(){
+	char* save = NULL;
+	char* dup = strdup(log_buffer);
+	char* line = strtok_r(dup,  "\n", &save);
+	while (line != NULL) 
+	{
+		LOG_INFO(line);
+		strtok_r( NULL, "\n", &save);
+		//Now decontruct the line into tokens of the following values 
+		/*
+			const char *path;
+			int is_active;
+			long start_t; // this should be in time unit how much time I dwell 
+			long end_t; // this should be in time unit how much time I dwell 
+			long duration; // this should be in time unit how much time I dwell 
+			long frequency; // count of how many times I go to work in a given dir
+		 */
+		line = strtok_r(NULL,  "\n", &save);
+	}
+	return line;
 }

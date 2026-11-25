@@ -7,7 +7,7 @@ endif
 
 setup_lib = static_library(
   'setup',
-  ['setup.c', 'log.c'],
+  ['setup.c', 'log.c', 'store.c'],
 )
 
 stats_lib = static_library(

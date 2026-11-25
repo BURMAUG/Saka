@@ -16,7 +16,7 @@ log_set_level(log_level_t level)
 void
 log_message(log_level_t level, const char *fmt, ...)
 {
-    if (level < current_level || fmt == NULL)
+   if (level < current_level || fmt == NULL)
         return;
 
     static const char *names[] = { "DEBUG", "INFO", "WARN", "ERROR" };

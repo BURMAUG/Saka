@@ -17,6 +17,8 @@
 typedef struct map {
 	const char *path;
 	unsigned int is_active;
+	unsigned long start_t; // this should be in time unit how much time I dwell 
+	unsigned long end_t; // this should be in time unit how much time I dwell 
 	unsigned long duration; // this should be in time unit how much time I dwell 
 	unsigned long frequency; // count of how many times I go to work in a given dir
 					 //

@@ -4,6 +4,7 @@
 #define STORE_FILE "/.local/share/ting/log"
 #define BUFF_SIZE 2048
 
+extern char log_buffer[BUFF_SIZE];
 
 
 // listen for cds attach an Id to the path and start a time.
