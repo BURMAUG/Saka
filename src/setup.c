@@ -3,6 +3,7 @@
 #include "string.h"
 #include "log.h"
 #include <stddef.h>
+#include <stdio.h>
 #if __has_include("color.h")
 //#include "color.h"
 #else
@@ -94,10 +95,25 @@ prepare()
 	char* save = NULL;
 	char* dup = strdup(log_buffer);
 	char* line = strtok_r(dup,  "\n", &save);
+
 	while (line != NULL) 
 	{
 		LOG_INFO(line);
-		strtok_r( NULL, "\n", &save);
+		char* field = NULL;
+		char* dir_path = strtok_r( line, ",", &field);
+		while (dir_path != NULL)
+		{
+			LOG_DEBUG(dir_path);
+			dir_path = strtok_r( NULL, ",", &field);
+			char* is_active = strtok_r( NULL, ",", &field);
+			LOG_DEBUG(is_active);
+			char* start_t = strtok_r( NULL, ",", &field);
+			LOG_DEBUG(start_t);
+			char* end_t = strtok_r( NULL, ",", &field);
+			//char* end_t = strtok_r( NULL, ",", &field);
+			//char* end_t = strtok_r( NULL, ",", &field);
+		}
+		LOG_DEBUG("\n");
 		//Now decontruct the line into tokens of the following values 
 		/*
 			const char *path;
@@ -107,7 +123,7 @@ prepare()
 			long duration; // this should be in time unit how much time I dwell 
 			long frequency; // count of how many times I go to work in a given dir
 		 */
-		line = strtok_r(NULL,  "\n", &save);
+		line = strtok_r( NULL, "\n", &save);
 	}
 
 }
