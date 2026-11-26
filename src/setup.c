@@ -121,7 +121,7 @@ look_up_storage_for_active_path(int fd, const char *target_path)
 		if (strcmp(target_path, e->path) == 0)
 		{
 			LOG_INFO("found_pile");
-			e->frequency++;
+			++e->frequency;
 			print_entry(e);
 			found = 1;
 			break;
