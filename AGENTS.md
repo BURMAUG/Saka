@@ -14,6 +14,17 @@ meson test -C build --print-errorlogs
 - Reconfigure: `meson setup --reconfigure build`. Build dirs `build*/` are gitignored; delete a stale dir and re-setup if configure fails.
 - CI compiles with both gcc and clang (`/.github/workflows/ci.yml`).
 
+## Formatting
+
+Style lives in `.clang-format` (tabs, Allman braces, return type on its own line). The stale `src/setup/` copies are excluded via `.clang-format-ignore`.
+
+```sh
+ninja -C build clang-format        # rewrite files in place
+ninja -C build clang-format-check  # report only, non-zero exit if anything differs
+```
+
+The targets exist only if `.clang-format` was present at configure time; run `meson setup --reconfigure build` once if they are missing.
+
 ## Environment
 
 - `TING_STORE_FILE=/path/to/log` overrides the store path (default `/home/burmo/.local/share/ting/log`). Use this in tests/dev to stay hermetic.

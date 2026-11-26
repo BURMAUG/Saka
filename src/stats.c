@@ -3,10 +3,9 @@
 #include <stddef.h>
 
 int
-frequency(map *entry)
+frequency(entry *entry)
 {
-    if (entry == NULL)
-        return -1;
-    return (int)(++entry->frequency);
+	if (entry == NULL)
+		return -1;
+	return (int)(++entry->frequency);
 }
-

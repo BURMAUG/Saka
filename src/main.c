@@ -6,41 +6,41 @@
 #include "log.h"
 
 
-int 
+int
 main(int argc, char **argv)
 {
 	if (argc > 2 && strcmp(argv[1], "cd") == 0)
 	{
-		// call stats to take the path 
+		// call stats to take the path
 		// argv[2]
-		// i need to know when to stop the watch 
-		// if another cd is made I need to stop any current timer 
+		// i need to know when to stop the watch
+		// if another cd is made I need to stop any current timer
 		// because it means I am out of the current target_path
 		const char *home = getenv("HOME");
 		int t_len = strlen(STORE_FILE);
 		int len = strlen(home);
 
-		char *new_store = malloc(len+t_len+1);
+		char *new_store = malloc(len + t_len + 1);
 		// I need concate home and path
 		// stitch path
-		memcpy(new_store, home,len);
-		memcpy(new_store+len, STORE_FILE,t_len);
+		memcpy(new_store, home, len);
+		memcpy(new_store + len, STORE_FILE, t_len);
 		new_store[len + t_len] = '\0';
 
 		LOG_INFO("new_path: %s\n", new_store);
 		LOG_INFO("cd_target_path: %s\n", argv[2]);
 
-		// argv[2] is the need path you cd into  
+		// argv[2] is the need path you cd into
 		int fd = setup_target_path(argv[2], new_store, 1);
 		if (fd < 0)
-	       	{
+		{
 			LOG_ERROR("unsuccessfully opened and started log files argc %i\n", argc);
 			return fd;
 		}
 		free(new_store);
-		LOG_INFO( "successfully opened and started log files\n");
+		LOG_INFO("successfully opened and started log files\n");
 		close(fd);
 	}
 
-    return 0;
+	return 0;
 }
