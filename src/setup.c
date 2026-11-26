@@ -77,10 +77,6 @@ save_entries(int fd)
 int
 setup_target_path(const char *target_path, char *rumbu, int is_active)
 {
-	// make dir for saka store
-	// is active is set to true on cd
-	// increment freq by one
-	//mkdir(store, O_CREAT);
 	int fd = open(rumbu, O_RDWR, 0644); // read and write now
 	LOG_INFO("STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
 	if (fd < 0)
@@ -94,18 +90,7 @@ setup_target_path(const char *target_path, char *rumbu, int is_active)
 	save_entries(fd);
 	close(fd);
 
-	// TODO
-	// only do this if the target_path is not in the log file
-	// or target_path is not active to increase frequency, and duration and is_active
-	//fd = open(STORE_FILE, O_WRONLY, 0644);
-
-	//m.path = target_path;
-
 	LOG_DEBUG("path: %s\n", target_path);
-
-	// TODO implement the following function
-	// increase freq by 1
-	// frequency(&m);
 
 	return fd;
 }
