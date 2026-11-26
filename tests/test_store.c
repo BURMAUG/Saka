@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+
 static void
 test_round_trip(void)
 {
@@ -29,6 +30,7 @@ test_round_trip(void)
 	unlink(tmpl);
 }
 
+
 static void
 test_empty_read(void)
 {
@@ -48,6 +50,7 @@ test_empty_read(void)
 	unlink(tmpl);
 }
 
+
 static void
 test_null_args(void)
 {
@@ -55,6 +58,7 @@ test_null_args(void)
 	ASSERT_INT_EQ(write_string_fd(-1, NULL), -1);
 	ASSERT_INT_EQ(write_string_fd(1, NULL), -1);
 }
+
 
 int
 main(void)

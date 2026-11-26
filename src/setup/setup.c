@@ -1,289 +1,184 @@
 #include "setup.h"
+#include "stats.h"
+#include "stdlib.h"
 #include "store.h"
-
+#include "string.h"
+#include "log.h"
+#include <stddef.h>
 #include <stdio.h>
-#include <string.h>
-#include <log.h>
-#include <stdlib.h>
-#include <string.h>
+#if __has_include("color.h")
+//#include "color.h"
+#else
+static inline const char *
+color_reset(void)
+{
+	return "";
+}
+
+
+static inline const char *
+color_green(void)
+{
+	return "";
+}
+
+
+static inline const char *
+color_red(void)
+{
+	return "";
+}
+
+
+static inline const char *
+color_cyan(void)
+{
+	return "";
+}
+
+
+static inline const char *
+color_yellow(void)
+{
+	return "";
+}
+#endif
+
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
+//#include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 
-static const char *
-store_file_path(void)
+char log_buffer[BUFF_SIZE];
+
+entry entries[MAX_ENTRIES];
+size_t entry_count = 0;
+
+int look_up_storage_for_active_path(int fd, const char *target_path);
+void load_entries();
+
+
+void
+print_entry(const entry *e)
 {
-    const char *p = getenv("TING_STORE_FILE");
-    return (p != NULL && p[0] != '\0') ? p : STORE_FILE;
+	LOG_INFO("path=%s freq=%lu duration=%llu active=%u start=%lld\n", e->path, e->frequency,
+	         e->duration, e->is_active, (long long)e->start_t);
 }
 
-static int
-ensure_parent_dir(const char *file_path)
+
+void
+save_entries(int fd)
 {
-    char tmp[MAX_PATH_LEN];
-    size_t n = strlen(file_path);
-    if (n >= sizeof(tmp))
-        return -1;
-    memcpy(tmp, file_path, n + 1);
+	if (lseek(fd, 0, SEEK_SET) < 0 || ftruncate(fd, 0) < 0)
+	{
+		LOG_ERROR("unable to rewrite store with fd: %i\n", fd);
+		return;
+	}
 
-    /* Strip the file name to get the directory. */
-    char *slash = strrchr(tmp, '/');
-    if (slash == NULL)
-        return 0;
-    *slash = '\0';
-    if (tmp[0] == '\0')
-        return 0;
-
-    /* mkdir -p (only one level is needed for our default path, but be safe). */
-    char acc[MAX_PATH_LEN];
-    acc[0] = '\0';
-    char *tok = strtok(tmp, "/");
-    int first = 1;
-    while (tok != NULL) {
-        if (first) {
-            /* Absolute path keeps leading '/'. */
-            if (file_path[0] == '/')
-                snprintf(acc, sizeof(acc), "/%s", tok);
-            else
-                snprintf(acc, sizeof(acc), "%s", tok);
-            first = 0;
-        } else {
-            size_t cur = strlen(acc);
-            snprintf(acc + cur, sizeof(acc) - cur, "/%s", tok);
-        }
-        if (mkdir(acc, 0755) != 0 && errno != EEXIST)
-            return -1;
-        tok = strtok(NULL, "/");
-    }
-    return 0;
+	for (size_t i = 0; i < entry_count; i++)
+	{
+		const entry *e = &entries[i];
+		dprintf(fd, "%s,%lu,%llu,%u,%lld\n", e->path, e->frequency, e->duration,
+		        e->is_active, (long long)e->start_t);
+	}
 }
+
 
 int
-parse_storage_buffer(const char *buf, size_t len,
-                    store_record_t *records, size_t max_records,
-                    size_t *out_count)
+setup_target_path(const char *target_path, char *rumbu, int is_active)
 {
-    if (buf == NULL || records == NULL || out_count == NULL)
-        return -1;
+	int fd = open(rumbu, O_RDWR, 0644); // read and write now
+	LOG_INFO("STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
+	if (fd < 0)
+	{
+		LOG_ERROR("unable to created/open with fd: %i\n", fd);
+		return 1;
+	}
+	//
+	//int read =
+	look_up_storage_for_active_path(fd, target_path);
+	save_entries(fd);
+	close(fd);
 
-    size_t count = 0;
-    size_t i = 0;
-    while (i < len && count < max_records) {
-        if (buf[i] == '\n') {
-            i++;
-            continue;
-        }
-        size_t start = i;
-        while (i < len && buf[i] != '\n')
-            i++;
-        size_t line_len = i - start;
-        if (i < len)
-            i++; /* consume '\n' */
+	LOG_DEBUG("path: %s\n", target_path);
 
-        if (line_len == 0)
-            continue;
-
-        char line[MAX_PATH_LEN];
-        size_t copy = line_len < sizeof(line) - 1 ? line_len : sizeof(line) - 1;
-        memcpy(line, buf + start, copy);
-        line[copy] = '\0';
-
-        /* Strip trailing '\r' (CRLF). */
-        size_t ll = strlen(line);
-        if (ll > 0 && line[ll - 1] == '\r')
-            line[ll - 1] = '\0';
-
-        /* Parse from the right so paths may contain commas. */
-        char *last = strrchr(line, ',');
-        if (last == NULL)
-            continue;
-        *last = '\0';
-        unsigned int is_active = (unsigned int)strtoul(last + 1, NULL, 10);
-
-        char *dur_ptr = strrchr(line, ',');
-        if (dur_ptr == NULL)
-            continue;
-        *dur_ptr = '\0';
-        unsigned long duration = strtoul(dur_ptr + 1, NULL, 10);
-
-        char *freq_ptr = strrchr(line, ',');
-        if (freq_ptr == NULL)
-            continue;
-        *freq_ptr = '\0';
-        unsigned long frequency = strtoul(freq_ptr + 1, NULL, 10);
-
-        const char *path = line; /* may be empty; still store */
-        if (path[0] == '\0')
-            continue;
-
-        snprintf(records[count].path, MAX_PATH_LEN, "%s", path);
-        records[count].frequency = frequency;
-        records[count].duration = duration;
-        records[count].is_active = is_active;
-        count++;
-    }
-
-    *out_count = count;
-    return 0;
+	return fd;
 }
 
-int
-lookup_record(const store_record_t *records, size_t count,
-              const char *target_path)
-{
-    if (records == NULL || target_path == NULL)
-        return -1;
-    for (size_t i = 0; i < count; i++) {
-        if (strcmp(records[i].path, target_path) == 0)
-            return (int)i;
-    }
-    return -1;
-}
 
 int
 look_up_storage_for_active_path(int fd, const char *target_path)
 {
-    if (target_path == NULL)
-        return -1;
-
-    char buffer[BUFF_SIZE];
-    memset(buffer, 0, sizeof(buffer));
-
-    ssize_t n = 0;
-    if (fd >= 0) {
-        /* Read up to BUFF_SIZE-1 bytes. */
-        size_t total = 0;
-        while (total + 1 < BUFF_SIZE) {
-            ssize_t r = read(fd, buffer + total, BUFF_SIZE - total - 1);
-            if (r < 0)
-                return -1;
-            if (r == 0)
-                break;
-            total += (size_t)r;
-        }
-        buffer[total] = '\0';
-        n = (ssize_t)total;
-    }
-
-    store_record_t records[MAX_RECORDS];
-    size_t count = 0;
-    if (parse_storage_buffer(buffer, (size_t)n, records, MAX_RECORDS, &count) != 0)
-        return -1;
-
-    int idx = lookup_record(records, count, target_path);
-    (void)idx;
-
-    fprintf(stdout, "buffer: %s\n\tread: %zd\n", buffer, n);
-    return fd;
-}
-
-int
-setup_target_path(const char *target_path, int is_active)
-{
-    if (target_path == NULL)
-        return -1;
-
-    const char *file = store_file_path();
-    if (ensure_parent_dir(file) != 0)
-        return -1;
-
-    static store_record_t records[MAX_RECORDS];
-    size_t count = 0;
-    memset(records, 0, sizeof(records));
-
-    int fd = open(file, O_RDONLY);
-    if (fd >= 0) {
-        char buffer[BUFF_SIZE];
-        memset(buffer, 0, sizeof(buffer));
-        size_t total = 0;
-        while (total + 1 < BUFF_SIZE) {
-            ssize_t r = read(fd, buffer + total, BUFF_SIZE - total - 1);
-            if (r < 0) {
-                close(fd);
-                return -1;
-            }
-            if (r == 0)
-                break;
-            total += (size_t)r;
-        }
-        buffer[total] = '\0';
-        close(fd);
-        if (parse_storage_buffer(buffer, total, records, MAX_RECORDS, &count) != 0)
-            return -1;
-    } else if (errno != ENOENT) {
-        return -1;
-    }
-
-    int idx = lookup_record(records, count, target_path);
-    int prev_active = -1;
-    for (size_t i = 0; i < count; i++) {
-        if (records[i].is_active)
-            prev_active = (int)i;
-    }
-
-    if (idx < 0) {
-        if (count >= MAX_RECORDS)
-            return -1;
-        snprintf(records[count].path, MAX_PATH_LEN, "%s", target_path);
-        records[count].frequency = 1;
-        records[count].duration = 0;
-        records[count].is_active = is_active ? 1 : 0;
-        count++;
-        idx = (int)count - 1;
-    } else {
-        if (!records[idx].is_active && !is_active)
-            ; /* no-op: entering handled by caller passing is_active */
-        if (!records[idx].is_active)
-            records[idx].frequency += 1;
-        records[idx].is_active = is_active ? 1 : 0;
-    }
-
-    if (prev_active >= 0 && prev_active != idx)
-        records[prev_active].is_active = 0;
-
-    /* Write records back. */
-    fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0)
-        return -1;
-
-    for (size_t i = 0; i < count; i++) {
-        char line[MAX_PATH_LEN + 64];
-        snprintf(line, sizeof(line), "%s,%lu,%lu,%u\n",
-                 records[i].path, records[i].frequency,
-                 records[i].duration, records[i].is_active);
-        if (write_string_fd(fd, line) != 0) {
-            close(fd);
-            return -1;
-        }
-    }
-    close(fd);
-
-    fprintf(stdout, "path: %s\n", target_path);
-    return 0;
-}
-
-//TODO is implementation is incorrect and shoul NOT be
-//trusted 
-char* read_line(){
-	char* save = NULL;
-	char* dup = strdup(log_buffer);
-	char* line = strtok_r(dup,  "\n", &save);
-	while (line != NULL) 
+	if (target_path == NULL)
 	{
-		LOG_INFO(line);
-		strtok_r( NULL, "\n", &save);
-		//Now decontruct the line into tokens of the following values 
-		/*
-			const char *path;
-			int is_active;
-			long start_t; // this should be in time unit how much time I dwell 
-			long end_t; // this should be in time unit how much time I dwell 
-			long duration; // this should be in time unit how much time I dwell 
-			long frequency; // count of how many times I go to work in a given dir
-		 */
-		line = strtok_r(NULL,  "\n", &save);
+		return -1;
 	}
-	return line;
+
+	read_fd_to_string(fd, log_buffer, BUFF_SIZE);
+	// even after read_fd_to_string is complete and popped off the program stack
+	// buffer is still populated with the values read;
+	LOG_DEBUG("in_buffer_values: %s", log_buffer);
+	load_entries();
+	int i = 0;
+	int found = 0;
+	while (i < entry_count)
+	{
+		entry *e = &entries[i];
+		if (strcmp(target_path, e->path) == 0)
+		{
+			LOG_INFO("found_pile");
+			++e->frequency;
+			print_entry(e);
+			found = 1;
+			break;
+		}
+		++i;
+	}
+	if (!found)
+	{
+		entry *e1 = &entries[entry_count++];
+		e1->path = target_path;
+		e1->start_t = time(NULL);
+		e1->frequency = 1;
+		e1->duration = 0;
+		e1->is_active = 1;
+		print_entry(e1);
+	}
+
+	// find target_path in the current buffer and split into tokens
+	// update the target to active
+	// start the intial time
+	return fd;
+}
+
+
+void
+load_entries()
+{
+	char *save = NULL;
+	char *line = strtok_r(log_buffer, "\n", &save);
+
+	while (line != NULL && entry_count < MAX_ENTRIES)
+	{
+		char *field = NULL;
+		char *path = strtok_r(line, ",", &field);
+		char *freq = strtok_r(NULL, ",", &field);
+		char *duration = strtok_r(NULL, ",", &field);
+		char *is_active = strtok_r(NULL, ",", &field);
+		char *start_t = strtok_r(NULL, ",", &field);
+
+		if (path != NULL && freq != NULL && duration != NULL && is_active != NULL)
+		{
+			entry *e = &entries[entry_count++];
+			e->path = path;
+			e->frequency = strtoul(freq, NULL, 10);
+			e->duration = strtoull(duration, NULL, 10);
+			e->is_active = (unsigned int)strtoul(is_active, NULL, 10);
+			e->start_t = start_t ? (time_t)strtoll(start_t, NULL, 10) : 0;
+		}
+
+		line = strtok_r(NULL, "\n", &save);
+	}
 }

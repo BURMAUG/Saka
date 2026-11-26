@@ -16,6 +16,7 @@ AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlignEscapedNewlines: DontAlign
+# scripts/format.py puts two blank lines before each function; this lets them survive.
 MaxEmptyLinesToKeep: 2
 
 # Leave comment text and include order as written.

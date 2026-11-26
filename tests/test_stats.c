@@ -1,6 +1,7 @@
 #include "stats.h"
 #include "test_harness.h"
 
+
 static void
 test_frequency_increments(void)
 {
@@ -13,11 +14,13 @@ test_frequency_increments(void)
 	ASSERT_INT_EQ(frequency(&entry), 3);
 }
 
+
 static void
 test_frequency_null(void)
 {
 	ASSERT_INT_EQ(frequency(NULL), -1);
 }
+
 
 int
 main(void)

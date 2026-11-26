@@ -3,6 +3,7 @@
 
 #include <string.h>
 
+
 static void
 test_parse_basic(void)
 {
@@ -22,6 +23,7 @@ test_parse_basic(void)
 	ASSERT_INT_EQ((int)records[1].started_at, 0);
 }
 
+
 static void
 test_parse_legacy(void)
 {
@@ -38,6 +40,7 @@ test_parse_legacy(void)
 	ASSERT_INT_EQ((int)records[0].started_at, 0);
 }
 
+
 static void
 test_parse_empty(void)
 {
@@ -50,6 +53,7 @@ test_parse_empty(void)
 	ASSERT_INT_EQ(parse_storage_buffer(only_nl, strlen(only_nl), records, 4, &count), 0);
 	ASSERT_INT_EQ((int)count, 0);
 }
+
 
 static void
 test_parse_crlf_and_path_with_comma(void)
@@ -66,6 +70,7 @@ test_parse_crlf_and_path_with_comma(void)
 	ASSERT_INT_EQ((int)records[0].is_active, 0);
 }
 
+
 static void
 test_lookup(void)
 {
@@ -81,6 +86,7 @@ test_lookup(void)
 	ASSERT_INT_EQ(lookup_record(records, 2, "/nope"), -1);
 	ASSERT_INT_EQ(lookup_record(NULL, 2, "/tmp"), -1);
 }
+
 
 static void
 test_finalize_record(void)
@@ -107,6 +113,7 @@ test_finalize_record(void)
 	finalize_record(NULL, 10);
 }
 
+
 static void
 test_parse_null_args(void)
 {
@@ -116,6 +123,7 @@ test_parse_null_args(void)
 	ASSERT_INT_EQ(parse_storage_buffer("x", 1, NULL, 1, &count), -1);
 	ASSERT_INT_EQ(parse_storage_buffer("x", 1, records, 1, NULL), -1);
 }
+
 
 int
 main(void)
