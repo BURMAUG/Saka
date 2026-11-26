@@ -7,8 +7,6 @@
 extern char log_buffer[BUFF_SIZE];
 #define MAX_ENTRIES 64
 
-//extern entry entry;
-
 
 // listen for cds attach an Id to the path and start a time.
 // TODO: implement cwd observation.

@@ -18,11 +18,10 @@
 typedef struct entry
 {
 	const char *path;
+	unsigned long frequency;     // count of how many times I go to work in a given dir
+	unsigned long long duration; // this should be in time unit how much time I dwell
 	unsigned int is_active;
 	time_t start_t;              // this should be in time unit how much time I dwell
-	unsigned long long duration; // this should be in time unit how much time I dwell
-	unsigned long frequency;     // count of how many times I go to work in a given dir
-				     //
 } entry;
 
 // increment the visit count for dir and return the new value.
