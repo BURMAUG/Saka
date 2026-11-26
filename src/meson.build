@@ -1,18 +1,18 @@
 fs = import('fs')
 
-setup_sources = ['setup/setup.c', 'store.c']
-if fs.exists('color.c')
-  setup_sources += 'color.c'
+setup_sources = ['setup/setup.c', 'store/store.c']
+if fs.exists('colour/color.c')
+  setup_sources += 'colour/color.c'
 endif
 
 setup_lib = static_library(
   'setup',
-  ['setup/setup.c', 'log.c', 'store.c'],
+  ['setup/setup.c', 'log/log.c', 'store/store.c'],
 )
 
 stats_lib = static_library(
   'stats',
-  'stats.c',
+  'stats/stats.c',
 )
 
 tingone_deps = declare_dependency(

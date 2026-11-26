@@ -126,6 +126,9 @@ def main():
     args = sys.argv[1:]
     check = "--check" in args
     files = [Path(arg).resolve() for arg in args if arg != "--check"] or source_files()
+    for path in files:
+        if not path.is_file():
+            sys.exit(f"format.py: no such file: {path}")
 
     changed = []
     for path in files:

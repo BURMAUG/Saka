@@ -1,9 +1,9 @@
-#include "setup.h"
-#include "stats.h"
+#include "setup/setup.h"
+#include "stats/stats.h"
 #include "stdlib.h"
-#include "store.h"
+#include "store/store.h"
 #include "string.h"
-#include "log.h"
+#include "log/log.h"
 #include <stddef.h>
 #include <stdio.h>
 #if __has_include("color.h")

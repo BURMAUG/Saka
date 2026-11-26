@@ -12,13 +12,13 @@ extern char log_buffer[BUFF_SIZE];
 // TODO: implement cwd observation.
 int setup_target_path(const char *target_path, char *rumbu, int is_active);
 
-int extract_data(const char* buffer);
+int extract_data(const char *buffer);
 
-char* read_line();
+char *read_line();
 // after reading the line split the comma seperated values or "|" seperated values
 int get_path(const int fd);
 int get_duration(const int fd);
-int get_frequency(const int fd);//count
+int get_frequency(const int fd); //count
 int is_active(const int fd);
 // after reading the line split the comma seperated values or "|" seperated values
 
