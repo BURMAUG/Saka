@@ -1,0 +1,23 @@
+BasedOnStyle: LLVM
+
+# Tabs for indentation, spaces for alignment.
+UseTab: AlignWithSpaces
+IndentWidth: 8
+TabWidth: 8
+ContinuationIndentWidth: 8
+ColumnLimit: 100
+
+# Braces on their own line; return type on its own line for definitions.
+BreakBeforeBraces: Allman
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+
+PointerAlignment: Right
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlignEscapedNewlines: DontAlign
+MaxEmptyLinesToKeep: 2
+
+# Leave comment text and include order as written.
+ReflowComments: false
+SortIncludes: false

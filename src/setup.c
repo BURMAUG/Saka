@@ -50,12 +50,15 @@ size_t entry_count = 0;
 
 int look_up_storage_for_active_path(int fd, const char *target_path);
 void load_entries();
+
+
 void
 print_entry(const entry *e)
 {
 	LOG_INFO("path=%s freq=%lu duration=%llu active=%u start=%lld\n", e->path, e->frequency,
 	         e->duration, e->is_active, (long long)e->start_t);
 }
+
 
 void
 save_entries(int fd)
@@ -73,6 +76,7 @@ save_entries(int fd)
 		        e->is_active, (long long)e->start_t);
 	}
 }
+
 
 int
 setup_target_path(const char *target_path, char *rumbu, int is_active)
@@ -122,7 +126,6 @@ look_up_storage_for_active_path(int fd, const char *target_path)
 			found = 1;
 			break;
 		}
-
 		++i;
 	}
 	if (!found)
