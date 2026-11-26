@@ -121,39 +121,53 @@ look_up_storage_for_active_path(int fd, const char *target_path)
 	// buffer is still populated with the values read;
 	LOG_DEBUG("in_buffer_values: %s", log_buffer);
 	load_entries();
-	int i = 0;
-	int found = 0;
-	while (i < entry_count)
+
+	time_t now = time(NULL);
+	entry *target = NULL;
+
+	for (size_t i = 0; i < entry_count; i++)
 	{
 		entry *e = &entries[i];
+
+		if (e->is_active)
+		{
+			if (e->start_t > 0 && now > e->start_t)
+			{
+				e->duration += (unsigned long long)(now - e->start_t);
+			}
+			e->is_active = 0;
+			e->start_t = 0;
+		}
+
 		if (strcmp(target_path, e->path) == 0)
 		{
-			if (!e->is_active)
-			{
-				e->is_active = 1;
-			}
 			LOG_INFO("found_pile");
-			++e->frequency;
-			print_entry(e);
-			found = 1;
-			break;
+			target = e;
 		}
 		else
 		{
-			e->is_active = 0;
 			print_entry(e);
 		}
-		++i;
 	}
-	if (!found)
+
+	if (target == NULL && entry_count < MAX_ENTRIES)
 	{
-		entry *e1 = &entries[entry_count++];
-		e1->path = target_path;
-		e1->start_t = time(NULL);
-		e1->frequency = 1;
-		e1->duration = 0;
-		e1->is_active = 1;
-		print_entry(e1);
+		target = &entries[entry_count++];
+		target->path = target_path;
+		target->frequency = 0;
+		target->duration = 0;
+	}
+
+	if (target != NULL)
+	{
+		++target->frequency;
+		target->is_active = 1;
+		target->start_t = now;
+		print_entry(target);
+	}
+	else
+	{
+		LOG_ERROR("store is full, not tracking: %s\n", target_path);
 	}
 
 	// find target_path in the current buffer and split into tokens
