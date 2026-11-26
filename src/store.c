@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 
+
 void
 read_fd_to_string(int fd, char *buf, size_t cap)
 {
@@ -12,6 +13,7 @@ read_fd_to_string(int fd, char *buf, size_t cap)
 	fflush(stdout);
 	close(r_fd);
 }
+
 
 // this is where I'd have to update or marking it active
 // start the time

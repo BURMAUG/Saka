@@ -16,14 +16,15 @@ meson test -C build --print-errorlogs
 
 ## Formatting
 
-Style lives in `.clang-format` (tabs, Allman braces, return type on its own line). The stale `src/setup/` copies are excluded via `.clang-format-ignore`.
+Style lives in `.clang-format` (tabs, Allman braces, return type on its own line). `scripts/format.py` runs clang-format and then puts exactly two blank lines before every function definition, which clang-format cannot do alone. The stale `src/setup/` copies are excluded via `.clang-format-ignore`.
 
 ```sh
-ninja -C build clang-format        # rewrite files in place
-ninja -C build clang-format-check  # report only, non-zero exit if anything differs
+ninja -C build format        # rewrite files in place
+ninja -C build format-check  # report only, non-zero exit if anything differs
+scripts/format.py src/setup.c  # one file, no Meson needed
 ```
 
-The targets exist only if `.clang-format` was present at configure time; run `meson setup --reconfigure build` once if they are missing.
+Use these instead of Meson's built-in `clang-format` target, which leaves the spacing between functions uneven. Run `meson setup --reconfigure build` once if the targets are missing.
 
 ## Environment
 

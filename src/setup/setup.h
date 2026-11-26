@@ -3,15 +3,14 @@
 
 #define STORE_FILE "/.local/share/ting/log"
 #define BUFF_SIZE 2048
-
+#define MAX_ENTRIES 64
 
 extern char log_buffer[BUFF_SIZE];
 
 
 // listen for cds attach an Id to the path and start a time.
 // TODO: implement cwd observation.
-int setup_target_path(const char *target_path, int is_active);
-
+int setup_target_path(const char *target_path, char *rumbu, int is_active);
 
 int extract_data(const char* buffer);
 

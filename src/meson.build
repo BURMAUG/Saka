@@ -1,13 +1,13 @@
 fs = import('fs')
 
-setup_sources = ['setup.c', 'store.c']
+setup_sources = ['setup/setup.c', 'store.c']
 if fs.exists('color.c')
   setup_sources += 'color.c'
 endif
 
 setup_lib = static_library(
   'setup',
-  ['setup.c', 'log.c', 'store.c'],
+  ['setup/setup.c', 'log.c', 'store.c'],
 )
 
 stats_lib = static_library(

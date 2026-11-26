@@ -7,11 +7,13 @@
 
 static log_level_t current_level = LOG_INFO;
 
+
 void
 log_set_level(log_level_t level)
 {
 	current_level = level;
 }
+
 
 void
 log_message(log_level_t level, const char *fmt, ...)

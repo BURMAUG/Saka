@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+
 static int
 enabled(void)
 {
@@ -19,11 +20,13 @@ enabled(void)
 	return cached;
 }
 
+
 int
 colors_enabled(void)
 {
 	return enabled();
 }
+
 
 const char *
 color_reset(void)
@@ -31,11 +34,13 @@ color_reset(void)
 	return enabled() ? "\033[0m" : "";
 }
 
+
 const char *
 color_green(void)
 {
 	return enabled() ? "\033[32m" : "";
 }
+
 
 const char *
 color_red(void)
@@ -43,11 +48,13 @@ color_red(void)
 	return enabled() ? "\033[31m" : "";
 }
 
+
 const char *
 color_cyan(void)
 {
 	return enabled() ? "\033[36m" : "";
 }
+
 
 const char *
 color_yellow(void)

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "setup.h"
+#include "setup/setup.h"
 #include "log.h"
 
 
