@@ -89,12 +89,12 @@ save_entries(int fd)
 int
 setup_target_path(const char *target_path, char *rumbu, int is_active)
 {
-	int fd = open(rumbu, O_RDWR, 0644); // read and write now
+	int fd = open(rumbu, O_RDWR | O_CREAT, 0644); // read and write now
 	LOG_INFO("STORE_FILE:[%s] created/open with fd: %i\n", rumbu, fd);
 	if (fd < 0)
 	{
 		LOG_ERROR("unable to created/open with fd: %i\n", fd);
-		return 1;
+		return -1;
 	}
 	//
 	//int read =
@@ -104,18 +104,13 @@ setup_target_path(const char *target_path, char *rumbu, int is_active)
 
 	LOG_DEBUG("path: %s\n", target_path);
 
-	return fd;
+	return 0;
 }
 
 
 int
 look_up_storage_for_active_path(int fd, const char *target_path)
 {
-	if (target_path == NULL)
-	{
-		return -1;
-	}
-
 	read_fd_to_string(fd, log_buffer, BUFF_SIZE);
 	// even after read_fd_to_string is complete and popped off the program stack
 	// buffer is still populated with the values read;
@@ -139,7 +134,7 @@ look_up_storage_for_active_path(int fd, const char *target_path)
 			e->start_t = 0;
 		}
 
-		if (strcmp(target_path, e->path) == 0)
+		if (target_path != NULL && strcmp(target_path, e->path) == 0)
 		{
 			LOG_INFO("found_pile");
 			target = e;
@@ -149,6 +144,9 @@ look_up_storage_for_active_path(int fd, const char *target_path)
 			print_entry(e);
 		}
 	}
+
+	if (target_path == NULL)
+		return fd;
 
 	if (target == NULL && entry_count < MAX_ENTRIES)
 	{
@@ -192,7 +190,7 @@ load_entries()
 		char *is_active = strtok_r(NULL, ",", &field);
 		char *start_t = strtok_r(NULL, ",", &field);
 
-		if (path != NULL && freq != NULL && duration != NULL && is_active != NULL)
+		if (freq != NULL && duration != NULL && is_active != NULL)
 		{
 			entry *e = &entries[entry_count++];
 			e->path = path;

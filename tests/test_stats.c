@@ -1,17 +1,19 @@
-#include "stats.h"
+#include "stats/stats.h"
 #include "test_harness.h"
+
+#include <string.h>
 
 
 static void
 test_frequency_increments(void)
 {
-	map entry;
-	memset(&entry, 0, sizeof(entry));
-	entry.path = "/tmp/tingone";
+	entry e;
+	memset(&e, 0, sizeof(e));
+	e.path = "/tmp/tingone";
 
-	ASSERT_INT_EQ(frequency(&entry), 1);
-	ASSERT_INT_EQ(frequency(&entry), 2);
-	ASSERT_INT_EQ(frequency(&entry), 3);
+	ASSERT_INT_EQ(frequency(&e), 1);
+	ASSERT_INT_EQ(frequency(&e), 2);
+	ASSERT_INT_EQ(frequency(&e), 3);
 }
 
 

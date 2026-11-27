@@ -5,13 +5,22 @@
 #include <string.h>
 
 
-void
+int
 read_fd_to_string(int fd, char *buf, size_t cap)
 {
-	size_t r_fd = read(fd, buf, cap - 1);
-	LOG_DEBUG("lookup_vals: %s\nwhat is r_fd: %d\nwhat is fd: %d", buf, r_fd, fd);
-	fflush(stdout);
-	close(r_fd);
+	if (fd < 0 || buf == NULL || cap == 0)
+		return -1;
+
+	ssize_t n = read(fd, buf, cap - 1);
+	if (n < 0)
+	{
+		buf[0] = '\0';
+		return -1;
+	}
+
+	buf[n] = '\0';
+	LOG_DEBUG("lookup_vals: %s\nwhat is r_fd: %zd\nwhat is fd: %d", buf, n, fd);
+	return (int)n;
 }
 
 
@@ -22,5 +31,17 @@ read_fd_to_string(int fd, char *buf, size_t cap)
 int
 write_string_fd(int fd, const char *buf)
 {
-	return fd;
+	if (fd < 0 || buf == NULL)
+		return -1;
+
+	size_t len = strlen(buf);
+	size_t off = 0;
+	while (off < len)
+	{
+		ssize_t w = write(fd, buf + off, len - off);
+		if (w <= 0)
+			return -1;
+		off += (size_t)w;
+	}
+	return 0;
 }

@@ -35,11 +35,11 @@ main(int argc, char **argv)
 		if (fd < 0)
 		{
 			LOG_ERROR("unsuccessfully opened and started log files argc %i\n", argc);
+			free(new_store);
 			return fd;
 		}
 		free(new_store);
 		LOG_INFO("successfully opened and started log files\n");
-		close(fd);
 	}
 
 	return 0;
